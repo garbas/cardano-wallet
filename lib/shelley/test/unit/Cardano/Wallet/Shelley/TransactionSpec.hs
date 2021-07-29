@@ -88,10 +88,6 @@ import Cardano.Wallet.Primitive.AddressDerivation
     , Depth (..)
     , DerivationIndex (..)
     , NetworkDiscriminant (..)
-    , Passphrase (..)
-    , PassphraseMaxLength (..)
-    , PassphraseMinLength (..)
-    , PassphraseScheme (..)
     , deriveRewardAccount
     , getRawKey
     , hex
@@ -117,6 +113,13 @@ import Cardano.Wallet.Primitive.CoinSelection.Balance
     )
 import Cardano.Wallet.Primitive.Model
     ( Wallet (..), unsafeInitWallet )
+import Cardano.Wallet.Primitive.Passphrase
+    ( Passphrase (..)
+    , PassphraseMaxLength (..)
+    , PassphraseMinLength (..)
+    , PassphraseScheme (..)
+    , preparePassphrase
+    )
 import Cardano.Wallet.Primitive.Slotting
     ( TimeInterpreter, hoistTimeInterpreter, mkSingleEraInterpreter )
 import Cardano.Wallet.Primitive.Types

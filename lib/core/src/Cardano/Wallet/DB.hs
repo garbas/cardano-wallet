@@ -42,6 +42,8 @@ import Cardano.Wallet.Primitive.AddressDerivation
     ( Depth (..) )
 import Cardano.Wallet.Primitive.Model
     ( Wallet )
+import Cardano.Wallet.Primitive.Passphrase
+    ( PassphraseHash )
 import Cardano.Wallet.Primitive.Types
     ( ChainPoint
     , DelegationCertificate
@@ -285,7 +287,7 @@ data DBLayer m s k = forall stm. (MonadIO stm, MonadFail stm) => DBLayer
 
     , putPrivateKey
         :: WalletId
-        -> (k 'RootK XPrv, Hash "encryption")
+        -> (k 'RootK XPrv, PassphraseHash)
         -> ExceptT ErrNoSuchWallet stm ()
         -- ^ Store or replace a private key for a given wallet. Note that wallet
         -- _could_ be stored and manipulated without any private key associated
@@ -294,7 +296,7 @@ data DBLayer m s k = forall stm. (MonadIO stm, MonadFail stm) => DBLayer
 
     , readPrivateKey
         :: WalletId
-        -> stm (Maybe (k 'RootK XPrv, Hash "encryption"))
+        -> stm (Maybe (k 'RootK XPrv, PassphraseHash))
         -- ^ Read a previously stored private key and its associated passphrase
         -- hash.
 

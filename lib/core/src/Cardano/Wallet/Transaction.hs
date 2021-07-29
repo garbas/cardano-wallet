@@ -44,11 +44,13 @@ import Cardano.Address.Derivation
 import Cardano.Api
     ( AnyCardanoEra )
 import Cardano.Wallet.Primitive.AddressDerivation
-    ( Depth (..), DerivationIndex, Passphrase )
+    ( Depth (..), DerivationIndex)
 import Cardano.Wallet.Primitive.CoinSelection
     ( SelectionCollateralRequirement (..), SelectionOf (..) )
 import Cardano.Wallet.Primitive.CoinSelection.Balance
     ( SelectionLimit, SelectionSkeleton )
+import Cardano.Wallet.Primitive.Passphrase
+    ( Passphrase )
 import Cardano.Wallet.Primitive.Slotting
     ( PastHorizonException, TimeInterpreter )
 import Cardano.Wallet.Primitive.Types
