@@ -28,7 +28,9 @@ import Cardano.Wallet.Primitive.AddressDerivation
 import Cardano.Wallet.Primitive.AddressDiscovery
     ( IsOurs (..) )
 import Cardano.Wallet.Primitive.Model
-    ( Wallet
+    ( BlockData (..)
+    , FilteredBlock
+    , Wallet
     , applyBlock
     , applyBlocks
     , applyOurTxToUTxO
@@ -105,6 +107,8 @@ import Data.Function
     ( (&) )
 import Data.Functor
     ( ($>) )
+import Data.Functor.Identity
+    ( Identity (..) )
 import Data.Generics.Internal.VL.Lens
     ( over, view, (^.) )
 import Data.Generics.Labels
@@ -279,6 +283,12 @@ spec = do
 {-------------------------------------------------------------------------------
                                 Properties
 -------------------------------------------------------------------------------}
+applyBlocksOld
+    :: (IsOurs s Address, IsOurs s RewardAccount)
+    => NonEmpty Block
+    -> Wallet s
+    -> NonEmpty (FilteredBlock, Wallet s)
+applyBlocksOld bs = runIdentity . applyBlocks (List bs)
 
 prop_3_2
     :: ApplyBlock
@@ -327,7 +337,7 @@ prop_applyBlockTxHistoryIncoming s =
   where
     (_, cp0) = initWallet @_ block0 s
     bs = NE.fromList blockchain
-    (filteredBlocks, cps) = NE.unzip $ applyBlocks bs cp0
+    (filteredBlocks, cps) = NE.unzip $ applyBlocksOld bs cp0
     txs = fold $ (view #transactions) <$> filteredBlocks
     s' = getState $ NE.last cps
     isIncoming (_, m) = direction m == Incoming
@@ -352,7 +362,7 @@ prop_applyBlocksBlockHeight s (Positive n) =
   where
     bs = NE.fromList (take n blockchain)
     (_, wallet) = initWallet block0 s
-    wallet' = NE.last $ snd <$> applyBlocks bs wallet
+    wallet' = NE.last $ snd <$> applyBlocksOld bs wallet
     bh = unQuantity . blockHeight . currentTip
     unQuantity (Quantity a) = a
 

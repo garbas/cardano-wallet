@@ -309,6 +309,7 @@ import Cardano.Wallet.Primitive.AddressDiscovery
     , IsOurs (..)
     , IsOwned (..)
     , KnownAddresses (..)
+    , MaybeLight (..)
     )
 import Cardano.Wallet.Primitive.AddressDiscovery.Random
     ( ErrImportAddress (..), RndStateLike )
@@ -321,13 +322,17 @@ import Cardano.Wallet.Primitive.AddressDiscovery.Shared
     , SharedState (..)
     , addCosignerAccXPub
     )
+import Cardano.Wallet.Primitive.BlockSummary
+    ( ChainEvents )
 import Cardano.Wallet.Primitive.Migration
     ( MigrationPlan (..) )
 import Cardano.Wallet.Primitive.Model
-    ( Wallet
+    ( BlockData (..)
+    , Wallet
     , applyBlocks
     , availableUTxO
     , currentTip
+    , firstHeader
     , getState
     , initWallet
     , totalUTxO
@@ -916,19 +921,32 @@ restoreWallet
         , IsOurs s Address
         , IsOurs s RewardAccount
         , AddressBookIso s
+        , MaybeLight s
         )
     => ctx
     -> WalletId
     -> ExceptT ErrNoSuchWallet IO ()
-restoreWallet ctx wid = db & \DBLayer{..} -> do
-    catchFromIO $ chainSync nw (contramap MsgChainFollow tr) $ ChainFollower
-        { readLocalTip = liftIO $ atomically $ listCheckpoints wid
-        , rollForward = \blocks tip -> throwInIO $
-            restoreBlocks @ctx @s @k
-                ctx (contramap MsgWalletFollow tr) wid blocks tip
-        , rollBackward =
-            throwInIO . rollbackBlocks @ctx @s @k ctx wid . toSlot
-        }
+restoreWallet ctx wid = db & \DBLayer{..} ->
+    let readLocalTip = liftIO $ atomically $ listCheckpoints wid
+        rollBackward =
+            throwInIO . rollbackBlocks @_ @s @k ctx wid . toSlot
+        rollForward' = \blockdata tip -> throwInIO $
+            restoreBlocks @_ @s @k
+                ctx (contramap MsgWalletFollow tr) wid blockdata tip
+    in
+      catchFromIO $ case (maybeDiscover, lightSync nw) of
+        (Just discover, Just sync) ->
+            sync $ ChainFollower
+                { readLocalTip
+                , rollForward = rollForward' . either List (Summary discover)
+                , rollBackward
+                }
+        (_,_) -> -- light-mode not available
+            chainSync nw (contramap MsgChainFollow tr) $ ChainFollower
+                { readLocalTip
+                , rollForward = rollForward' . List
+                , rollBackward
+                }
   where
     db = ctx ^. dbLayer @IO @s @k
     nw = ctx ^. networkLayer @IO
@@ -1006,26 +1024,27 @@ restoreBlocks
     => ctx
     -> Tracer IO WalletFollowLog
     -> WalletId
-    -> NonEmpty Block
+    -> BlockData IO (Either Address RewardAccount) ChainEvents s
     -> BlockHeader
     -> ExceptT ErrNoSuchWallet IO ()
 restoreBlocks ctx tr wid blocks nodeTip = db & \DBLayer{..} -> mapExceptT atomically $ do
     cp0  <- withNoSuchWallet wid (readCheckpoint wid)
     sp   <- liftIO $ currentSlottingParameters nl
 
-    unless (cp0 `isParentOf` NE.head blocks) $ fail $ T.unpack $ T.unwords
+    unless (cp0 `isParentOf` firstHeader blocks) $ fail $ T.unpack $ T.unwords
         [ "restoreBlocks: given chain isn't a valid continuation."
         , "Wallet is at:", pretty (currentTip cp0)
         , "but the given chain continues starting from:"
-        , pretty (header (NE.head blocks))
+        , pretty (firstHeader blocks)
         ]
 
-    let (filteredBlocks, cps) = NE.unzip $ applyBlocks @s blocks cp0
-    let slotPoolDelegations =
+    (filteredBlocks, cps) <- liftIO $ NE.unzip <$> applyBlocks @s blocks cp0
+    let List blocks' = blocks
+        slots = view #slotNo . view #header <$> blocks'
+        delegations = view #delegations <$> filteredBlocks
+        slotPoolDelegations =
             [ (slotNo, cert)
-            | let slots = view #slotNo . view #header <$> blocks
-            , let delegations = view #delegations <$> filteredBlocks
-            , (slotNo, certs) <- NE.toList $ NE.zip slots delegations
+            | (slotNo, certs) <- NE.toList $ NE.zip slots delegations
             , cert <- certs
             ]
     let txs = fold $ view #transactions <$> filteredBlocks
@@ -1094,8 +1113,8 @@ restoreBlocks ctx tr wid blocks nodeTip = db & \DBLayer{..} -> mapExceptT atomic
     logDelegation :: (SlotNo, DelegationCertificate) -> IO ()
     logDelegation = traceWith tr . uncurry MsgDiscoveredDelegationCert
 
-    isParentOf :: Wallet s -> Block -> Bool
-    isParentOf cp = (== Just parent) . parentHeaderHash . header
+    isParentOf :: Wallet s -> BlockHeader -> Bool
+    isParentOf cp = (== Just parent) . parentHeaderHash
       where parent = headerHash $ currentTip cp
 
 -- | Remove an existing wallet. Note that there's no particular work to

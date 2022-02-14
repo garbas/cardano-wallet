@@ -362,6 +362,7 @@ import Cardano.Wallet.Primitive.AddressDiscovery
     , IsOurs
     , IsOwned
     , KnownAddresses
+    , MaybeLight
     , isOwned
     )
 import Cardano.Wallet.Primitive.AddressDiscovery.Random
@@ -1143,6 +1144,7 @@ postLegacyWallet
         , KnownDiscovery s
         , IsOurs s RewardAccount
         , IsOurs s Address
+        , MaybeLight s
         , HasNetworkLayer IO ctx
         , WalletKey k
         , AddressBookIso s
@@ -3612,6 +3614,7 @@ newApiLayer
         , IsOurs s RewardAccount
         , IsOurs s Address
         , AddressBookIso s
+        , MaybeLight s
         )
     => Tracer IO WalletEngineLog
     -> (Block, NetworkParameters, SyncTolerance)
@@ -3638,6 +3641,7 @@ startWalletWorker
         , IsOurs s RewardAccount
         , IsOurs s Address
         , AddressBookIso s
+        , MaybeLight s
         )
     => ctx
     -> (WorkerCtx ctx -> WalletId -> IO ())
@@ -3659,6 +3663,7 @@ createWalletWorker
         , IsOurs s RewardAccount
         , IsOurs s Address
         , AddressBookIso s
+        , MaybeLight s
         )
     => ctx
         -- ^ Surrounding API context
@@ -3689,6 +3694,7 @@ registerWorker
         , IsOurs s RewardAccount
         , IsOurs s Address
         , AddressBookIso s
+        , MaybeLight s
         )
     => ctx
     -> (WorkerCtx ctx -> WalletId -> IO ())
