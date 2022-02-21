@@ -186,6 +186,7 @@ import Test.Integration.Framework.TestData
     , errMsg403ForeignTransaction
     , errMsg403InvalidConstructTx
     , errMsg403MinUTxOValue
+    , errMsg403MinimizeFee
     , errMsg403MissingWitsInTransaction
     , errMsg403MultiaccountTransaction
     , errMsg403MultidelegationTransaction
@@ -1645,13 +1646,13 @@ spec = describe "NEW_SHELLEY_TRANSACTIONS" $ do
 
     it "TRANS_NEW_BALANCE_02b - Cannot balance when I cannot afford fee" $
         \ctx -> runResourceT $ do
-        wa <- fixtureWalletWith @n ctx [3_300_000]
+        wa <- fixtureWalletWith @n ctx [2_500_000]
         let balancePayload = Json PlutusScenario.pingPong_1
         rTx <- request @ApiSerialisedTransaction ctx
             (Link.balanceTransaction @'Shelley wa) Default balancePayload
         verify rTx
             [ expectResponseCode HTTP.status403
-            , expectErrorMessage errMsg403Fee
+            , expectErrorMessage errMsg403MinimizeFee
             ]
 
     it "TRANS_NEW_BALANCE_02c - \

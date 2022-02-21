@@ -45,6 +45,7 @@ module Test.Integration.Framework.TestData
     , errMsg400WalletIdEncoding
     , errMsg400StartTimeLaterThanEndTime
     , errMsg403Fee
+    , errMsg403MinimizeFee
     , errMsg403Collateral
     , errMsg403NotAByronWallet
     , errMsg403NotAnIcarusWallet
@@ -321,6 +322,11 @@ errMsg403Fee =
     "I am unable to finalize the transaction, as there is not enough ada \
     \available to pay for the fee and also pay for the minimum ada quantities \
     \of all change outputs."
+
+errMsg403MinimizeFee :: String
+errMsg403MinimizeFee =
+    "I cannot minimize fees because I cannot construct a change \
+    \output. Try ensuring the wallet has at least a couple of ada."
 
 errMsg403Collateral :: String
 errMsg403Collateral =
