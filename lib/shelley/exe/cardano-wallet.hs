@@ -144,6 +144,7 @@ import System.Exit
 import UnliftIO.Exception
     ( withException )
 
+import qualified Cardano.Wallet.Shelley.Launch.Blockfrost as Blockfrost
 import qualified Cardano.BM.Backend.EKGView as EKG
 import qualified Cardano.Wallet.Version as V
 import qualified Data.Text as T
@@ -177,6 +178,7 @@ beforeMainLoop tr = logInfo tr . MsgListenAddress
 -- | Arguments for the 'serve' command
 data ServeArgs = ServeArgs
     { _hostPreference :: HostPreference
+    , _lightModeCredentials :: Maybe Blockfrost.CredFilePath
     , _listen :: Listen
     , _tlsConfig :: Maybe TlsConfiguration
     , _nodeSocket :: CardanoNodeConn
@@ -198,6 +200,7 @@ cmdServe = command "serve" $ info (helper <*> helper' <*> cmd) $ mempty
 
     cmd = fmap exec $ ServeArgs
         <$> hostPreferenceOption
+        <*> optional Blockfrost.lightOption
         <*> listenOption
         <*> optional tlsOption
         <*> nodeSocketOption
@@ -212,6 +215,7 @@ cmdServe = command "serve" $ info (helper <*> helper' <*> cmd) $ mempty
         :: ServeArgs -> IO ()
     exec args@(ServeArgs
       host
+      _lightModeCredentials
       listen
       tlsConfig
       conn
