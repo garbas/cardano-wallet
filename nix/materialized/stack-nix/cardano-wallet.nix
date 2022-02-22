@@ -110,6 +110,7 @@
           "Cardano/Wallet/Shelley/Network"
           "Cardano/Wallet/Shelley/Transaction"
           "Cardano/Wallet/Shelley/Launch"
+          "Cardano/Wallet/Shelley/Launch/Blockfrost"
           "Cardano/Wallet/Shelley/Launch/Cluster"
           "Cardano/Wallet/Shelley/Pools"
           ];
