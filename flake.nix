@@ -51,9 +51,12 @@
     customConfig.url = "github:input-output-hk/empty-flake";
     emanote.url = "github:srid/emanote";
     emanote.inputs.nixpkgs.url = github:NixOS/nixpkgs/d77bbfcbb650d9c219ca3286e1efb707b922d7c2;
+    # TODO: point to master branch
+    #cicero.url = "github:input-output-hk/cicero";
+    cicero.url = "github:garbas/cicero/hydra2cicero";
   };
 
-  outputs = { self, nixpkgs, hostNixpkgs, flake-utils, haskellNix, iohkNix, customConfig, emanote, ... }:
+  outputs = { self, nixpkgs, hostNixpkgs, flake-utils, haskellNix, iohkNix, customConfig, emanote, cicero, ... }:
     let
       inherit (nixpkgs) lib;
       config = import ./nix/config.nix lib customConfig;
@@ -387,11 +390,14 @@
 
     in
     lib.recursiveUpdate (removeAttrs systems [ "systemHydraJobs" "systemHydraJobsPr" "systemHydraJobsBors" ])
-      {
+      rec {
         inherit overlay nixosModule nixosModules;
+
         hydraJobs = mkHydraJobs systems.systemHydraJobs;
         hydraJobsPr = mkHydraJobs systems.systemHydraJobsPr;
         hydraJobsBors = mkHydraJobs systems.systemHydraJobsBors;
+
+        ciceroActions = cicero.lib.fromHydraJobs {} hydraJobs;
       }
   ;
 }
