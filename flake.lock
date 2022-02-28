@@ -96,11 +96,11 @@
         "utils": "utils_4"
       },
       "locked": {
-        "lastModified": 1646044752,
-        "narHash": "sha256-L7B+8ZG3eHlycQi3JJ4/Xay3MwWpVrvD/GlFZjKCtUI=",
+        "lastModified": 1646050847,
+        "narHash": "sha256-ZDLXYJ240yFEhWnfk8JnUJRby4bjFZsEn3ZEeWC7fNY=",
         "owner": "garbas",
         "repo": "cicero",
-        "rev": "e114b857fb34fe8de8a917b645fce3533046b998",
+        "rev": "2c24629ddefb1b7c30f5d014f9723cdbc8ff5258",
         "type": "github"
       },
       "original": {
