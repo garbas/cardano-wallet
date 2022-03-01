@@ -96,7 +96,7 @@
         "utils": "utils_4"
       },
       "locked": {
-        "narHash": "sha256-JlG4jthUGDPCQQvaqfgKNHFVT0MeICxGzkTlZdPxJW8=",
+        "narHash": "sha256-953uvzb3a6WoTAl2DaSBrcFOVCk4mLN34gFbA01Olqo=",
         "path": "/home/rok/dev/iog/cicero",
         "type": "path"
       },
