@@ -53,7 +53,8 @@
     emanote.inputs.nixpkgs.url = github:NixOS/nixpkgs/d77bbfcbb650d9c219ca3286e1efb707b922d7c2;
     # TODO: point to master branch
     #cicero.url = "github:input-output-hk/cicero";
-    cicero.url = "github:garbas/cicero/hydra2cicero";
+    #cicero.url = "github:garbas/cicero/hydra2cicero";
+    cicero.url = "path:/home/rok/dev/iog/cicero";
   };
 
   outputs = { self, nixpkgs, hostNixpkgs, flake-utils, haskellNix, iohkNix, customConfig, emanote, cicero, ... }:
