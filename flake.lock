@@ -96,13 +96,18 @@
         "utils": "utils_4"
       },
       "locked": {
-        "narHash": "sha256-953uvzb3a6WoTAl2DaSBrcFOVCk4mLN34gFbA01Olqo=",
-        "path": "/home/rok/dev/iog/cicero",
-        "type": "path"
+        "lastModified": 1646682448,
+        "narHash": "sha256-q+V7zyKIX7rIguzwOd98+MyKsNpgsWw3GTYl0e67orI=",
+        "owner": "garbas",
+        "repo": "cicero",
+        "rev": "914b75b8c7df7c705ae64bd710f6584c4800df4e",
+        "type": "github"
       },
       "original": {
-        "path": "/home/rok/dev/iog/cicero",
-        "type": "path"
+        "owner": "garbas",
+        "ref": "hydra2cicero",
+        "repo": "cicero",
+        "type": "github"
       }
     },
     "customConfig": {
